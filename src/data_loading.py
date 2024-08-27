@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import PolynomialFeatures
 
 '''
     Data Loading
@@ -92,6 +91,16 @@ def remove_special_stocks(price):
     price = price[~exclude_stocks]
     return price
 
+def fundamental_data_drop_duplicate(data):
+    data.reset_index(inplace=True)
+    data.drop_duplicates(subset=['證券代碼', '年月'], inplace=True, keep='first')
+    data.set_index(['證券代碼', '財報發布日'], inplace=True)
+    return data
+
+def select_features(data, features, rename):
+    data = data.rename(columns = dict(zip(features, rename)))
+    return data[rename]
+
 def merge_feature_data(feature: pd.DataFrame, price, return_mode = 'simple'):
     '''
     This function merge data with different frequency and return seasonal data 
@@ -115,38 +124,3 @@ def merge_feature_data(feature: pd.DataFrame, price, return_mode = 'simple'):
     data_seasonal.sort_index(level=3, inplace = True)
     
     return data_seasonal
-
-
-'''
-    Data Processing
-'''
-
-def scale_data(data):
-    
-    returns_preserved = data['Seasonal Return'] #preseve return from any modification
-    data_scaled = pd.DataFrame(scale(data), index = data.index, columns = data.columns) #scaling data
-    data_scaled['Seasonal Return'] = returns_preserved #append back preserved return
-    
-    return data_scaled
-
-def impute_data(data):
-    
-    returns_preserved = data['Seasonal Return'] #preseve return from any modification
-    #imp = SimpleImputer(strategy='mean') #imputing data
-    #imp.fit(data)
-    #data_imputed = pd.DataFrame(imp.transform(data), index = data.index, columns = data.columns)
-    data_imputed = data.groupby('證券代碼').fillna(method='ffill').fillna(0)
-    data_imputed['Seasonal Return'] = returns_preserved #append back preserved return
-
-    return data_imputed
-
-def polynomial_transform(data, degree=1):
-
-    returns_preserved = data['Seasonal Return'] #preseve return from any modification
-    data.drop(columns=['Open', 'High', 'Low', 'Close', 'Volume', 'QuoteVolume',	'YSTD Close', 'TMR Close', 'Daily Return', 'YSTD Close Shift', 'Seasonal Return'], inplace=True)
-    poly = PolynomialFeatures(interaction_only=False, degree = degree)
-    poly.fit(data)
-    data_transformed = pd.DataFrame(poly.transform(data), index = data.index, columns = poly.get_feature_names_out(data.columns))
-    data_transformed['Seasonal Return'] = returns_preserved #append back preserved return
-
-    return data_transformed
