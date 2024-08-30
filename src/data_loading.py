@@ -15,8 +15,7 @@ def load_fundamental_data(path = './data/ifrs.csv'):
     data.set_index(['證券代碼', '財報發布日'], inplace=True)
     data.sort_index(level=0, inplace=True)
     data.drop(columns=['合併(Y/N)', '單季(Q)/單半年(H)', '月份', '季別', '幣別', '市場別', '財報附註TEJ是否完成Y/N', 
-                       '財報類別（1個別2個體3合併）', '財報年月起日', '財報年月迄日', '市場別', '交易所主產業代碼',
-                       '交易所子產業代碼', 'TEJ主產業代碼', 'TEJ子產業代碼', '財報附註TEJ是否完成Y/N',], inplace = True)
+                       '財報類別（1個別2個體3合併）', '財報年月起日', '財報年月迄日', '市場別','財報附註TEJ是否完成Y/N',], inplace = True)
     data.dropna(axis=1, how='all', inplace= True)
     return data
 
