@@ -106,11 +106,12 @@ def merge_feature_data(feature: pd.DataFrame, price, return_mode = 'simple'):
     that contain entry and exit for each period.
     '''
     #merge data and convert frequency to seasonal
-    data_merged = feature.merge(price, how='outer', left_index=True, right_index=True)
-    seasonal = (data_merged.index.get_level_values('財報發布日') == data_merged.index.get_level_values('年月日'))
-    data_seasonal = data_merged[seasonal]
+    data_merged = feature.merge(price, how='left', left_index=True, right_on=['證券代碼', '年月日'])
+    #seasonal = (data_merged.index.get_level_values('財報發布日') == data_merged.index.get_level_values('年月日'))
+    #data_seasonal = data_merged[seasonal]
+    data_seasonal = data_merged
     
-    data_seasonal.sort_index(level = '財報發布日')
+    data_seasonal.sort_index(level = '年月日')
     #calculate returns
     data_seasonal['YSTD Close Shift'] = data_seasonal.groupby('證券代碼')['YSTD Close'].shift(-1)
     
@@ -120,6 +121,6 @@ def merge_feature_data(feature: pd.DataFrame, price, return_mode = 'simple'):
         data_seasonal['Seasonal Return'] = (data_seasonal['YSTD Close Shift'] / data_seasonal['TMR Close']).apply(np.log)
 
     data_seasonal.set_index('年月', append=True, inplace=True)
-    data_seasonal.sort_index(level=3, inplace = True)
+    data_seasonal.sort_index(level='年月', inplace = True)
     
     return data_seasonal

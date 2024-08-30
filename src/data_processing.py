@@ -37,6 +37,6 @@ def polynomial_transform(data, degree=1):
     return data_transformed
 
 def train_test_split(data, split_date = '2022-01'):
-    data_train = data[data.index.get_level_values(3) < split_date]
-    data_test = data[data.index.get_level_values(3) >= split_date]
+    data_train = data[data.index.get_level_values('年月') < split_date]
+    data_test = data[data.index.get_level_values('年月') >= split_date]
     return data_train, data_test
